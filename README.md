@@ -1,4 +1,4 @@
-# sdl3stris
+# sdl3tris
 Havent used C in a while and wanted to retry an old challenge. C23, because i've just spent a while learning C++ and wanted a couple of the parity features.
 
 <img width="400"  alt="image" src="https://github.com/user-attachments/assets/4b546f6f-0a7b-4b53-80bf-0fd996022695" />
