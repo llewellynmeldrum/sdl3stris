@@ -28,9 +28,11 @@ OBJS 	:= 	$(patsubst $(SRC_DIR)/%$(SRC_EXT),$(OBJ_DIR)/%$(OBJ_EXT),$(SRC))
 
 # flags for the compiler only 
 CFLAGS	:=-Iinclude $(shell pkg-config sdl3 --cflags)
+CFLAGS	+=-Iinclude $(shell pkg-config sdl3-image --cflags)
 
 LDFLAGS	:= 
 LDLIBS	:= $(shell pkg-config sdl3 --libs)
+LDLIBS  += $(shell pkg-config sdl3-image --libs)
 ALLFLAGS:=
 
 

@@ -4,6 +4,7 @@
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "debugtext.h"
 #include "ringbuffer.h"
@@ -19,14 +20,84 @@ void draw_triangle(SDL_Vertex* vertices, size_t vert_count) {
     SDL_RenderGeometry(ctx.renderer, NULL, vertices, vert_count, NULL, 0);
 }
 
-#define DrawQuad(vertices) draw_quad(vertices, arrlen(vertices))
-void draw_quad(SDL_Vertex* vertices, size_t vert_count) {
+#define QUAD_VERT_COUNT 4
+#define DrawQuad(vertices, color) make_quad(vertices, color)
+void render_quad(SDL_Vertex* vertices) {
     const int quad_indices[] = {
             0, 1, 2,  // top left tri
             0, 2, 3   // bottom left tri
     };
-    SDL_RenderGeometry(ctx.renderer, NULL, vertices, vert_count, quad_indices,
+    SDL_RenderGeometry(ctx.renderer, NULL, vertices, QUAD_VERT_COUNT, quad_indices,
                        arrlen(quad_indices));
+}
+void make_quad(vec2* points, SDL_FColor color) {
+    SDL_Vertex vertices[QUAD_VERT_COUNT] = (SDL_Vertex[]){
+            VTX(color, points[0].x, points[0].y),
+            VTX(color, points[1].x, points[1].y),
+            VTX(color, points[2].x, points[2].y),
+            VTX(color, points[3].x, points[3].y),
+    };
+    render_quad(vertices);
+}
+void drawBlockV(vec2 tl, double len, const SDL_FColor piece_colors[4]) {
+    double bord = len * 0.14;  // border width
+    {
+        // MAIN QUAD
+        vec2 quad_verts[] = {
+                tl,
+                {tl.x + len, tl.y},
+                {tl.x + len, tl.y + len},
+                {tl.x, tl.y + len},
+        };
+        DrawQuad(quad_verts, piece_colors[2]);
+    }
+    {
+        // LEFT EDGE
+        vec2 o = {tl.x, tl.y};
+        vec2 quad_verts[] = {
+                o,
+                {o.x + bord, o.y + bord},
+                {o.x + bord, o.y + len - bord},
+                {o.x, o.y + len},
+        };
+        DrawQuad(quad_verts, piece_colors[1]);
+    }
+    {
+        // RIGHT EDGE
+        vec2 o = {tl.x + len - bord, tl.y};
+        vec2 quad_verts[] = {
+                {o.x, o.y + bord},
+                {o.x + bord, o.y},
+                {o.x + bord, o.y + len},
+                {o.x, o.y + len - bord},
+        };
+        DrawQuad(quad_verts, piece_colors[1]);
+    }
+    {
+        // TOP EDGE
+        vec2 o = {tl.x, tl.y};
+        vec2 quad_verts[] = {
+                {o.x, o.y},
+                {o.x + len, o.y},
+                {o.x + len - bord, o.y + bord},
+                {o.x + bord, o.y + bord},
+        };
+        DrawQuad(quad_verts, piece_colors[3]);
+    }
+    {
+        // BOT EDGE
+        vec2 o = {tl.x, tl.y + len};
+        vec2 quad_verts[] = {
+                {o.x, o.y},
+                {o.x + bord, o.y - bord},
+                {o.x + len - bord, o.y - bord},
+                {o.x + len, o.y},
+        };
+        DrawQuad(quad_verts, piece_colors[0]);
+    }
+}
+void draw_block(double tlx, double tly, double len, const SDL_FColor piece_colors[4]) {
+    drawBlockV((vec2){tlx, tly}, len, piece_colors);
 }
 
 SDL_AppResult SDL_AppIterate(void* _) {
@@ -40,34 +111,26 @@ SDL_AppResult SDL_AppIterate(void* _) {
     setcolor(ctx.draw.clear_color);
     SDL_RenderClear(ctx.renderer);
 
-    // frame starts here
+    drawBlockV((vec2){30, 30}, 100, cyan);
+    drawBlockV((vec2){30 + 120, 30}, 100, blue);
+    drawBlockV((vec2){30 + 240, 30}, 100, orange);
+    drawBlockV((vec2){30 + 360, 30}, 100, yellow);
 
-    SDL_Vertex tri_verts[] = {
-            VTX(red, 200, 75),
-            VTX(green, 100, 225),
-            VTX(blue, 300, 225),
-    };
-    DrawTriangle(tri_verts);
-
-    SDL_Vertex quad_verts[] = {
-            VTX(red, 300, 100),
-            VTX(green, 400, 130),
-            VTX(blue, 400, 300),
-            VTX(grey, 300, 330),
-    };
-    if (ctx.input.m1) {
-        quad_verts[0] = VTX(red, ctx.input.mpos.x, ctx.input.mpos.y);
-    }
-    DrawQuad(quad_verts);
+    drawBlockV((vec2){30, 150}, 100, green);
+    drawBlockV((vec2){30 + 120, 150}, 100, purple);
+    drawBlockV((vec2){30 + 240, 150}, 100, red);
 
     drawDebugWindow();
+
     SDL_RenderPresent(ctx.renderer);
     ctx.perf.ms_lastframe = ms_thisframe;
+    ctx.perf.show = false;
     return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppInit(void** _, int argc, char* argv[]) {
     ctx = init_ctx();
+    ctx.perf.ms_lastframe = get_current_ms();
     SDL_SetAppMetadata("title", "1.0", "com.example.hi");
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO)) {
