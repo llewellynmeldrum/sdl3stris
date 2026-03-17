@@ -1,6 +1,11 @@
 #pragma once
 #include <stdint.h>
 #define vec2_unpack(p) p.x, p.y
+#define vec2_mul(v, s)                                                                             \
+    (vec2) {                                                                                       \
+        v.x *= s, v.y *= s                                                                         \
+    }
+#define vec2_print(v) printf("%s:{%f,%f}\n", #v, v.x, v.y)
 
 #define arrlen(arr) (sizeof(arr) / sizeof(arr[0]))
 

@@ -19,7 +19,7 @@ typedef struct {
 typedef struct {
     SDL_FColor clear_color;
 } Draw;
-typedef struct {
+typedef struct SDLContext {
     SDL_Window*   window;
     SDL_Renderer* renderer;
     Input         input;
@@ -27,6 +27,10 @@ typedef struct {
     Draw          draw;
     u64           frame_count;
     u64           clock_freq;
+    double        w;
+    double        h;
+    i64           cols;
+    i64           rows;
 } SDLContext;
 extern SDLContext ctx;
 
@@ -36,23 +40,25 @@ typedef struct {
 } VertexArray;
 
 // T piece
-const SDL_FColor purple[4];
+const SDL_FColor purple[5];
+const SDL_FColor grey[5];
 // S piece --__
-const SDL_FColor green[4];
+const SDL_FColor green[5];
 // Z piece __--
-const SDL_FColor red[4];
+const SDL_FColor red[5];
 // J piece _-_
-const SDL_FColor blue[4];
+const SDL_FColor blue[5];
 // O piece square
-const SDL_FColor yellow[4];
+const SDL_FColor yellow[5];
 // L piece -_-
-const SDL_FColor orange[4];
+const SDL_FColor orange[5];
 // I piece
-const SDL_FColor cyan[4];
+const SDL_FColor cyan[5];
 
 void       drawVertexArray(VertexArray arr);
 SDLContext init_ctx();
 
+#define gr(gr) (SDL_FColor){gr / 255.0, gr / 255.0, gr / 255.0, 1.0}
 #define rgb(r, g, b) (SDL_FColor){r / 255.0, g / 255.0, b / 255.0, 1.0}
 #define rgba(r, g, b, a) (SDL_FColor){r / 255.0, g / 255.0, b / 255.0, a / 255.0}
 #define setrgb(r, g, b) SDL_SetRenderDrawColor(ctx.renderer, r, g, b, 255)
