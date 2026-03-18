@@ -8,6 +8,7 @@
 # Do all of the above, but also make it pretty with fancy tput headers lol
 all: run
 
+MAKEFLAGS+= -j8
 EXE_DIR	:=bin
 EXE_NAME :=test
 EXE :=$(EXE_DIR)/$(EXE_NAME)
