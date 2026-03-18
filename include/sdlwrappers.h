@@ -15,6 +15,7 @@ typedef struct {
     RingBuffer* fps_rb;
     RingBuffer* ft_rb;  //  frametime (ms).
     double      ms_lastframe;
+    double      ms_thisframe;
 } Profiler;
 
 typedef struct {

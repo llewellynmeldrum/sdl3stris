@@ -33,13 +33,13 @@ static inline void debug_print_q(Queue* q) {
            "}\n",
            q->head, q->tail, q->size, q->element_size);
 }
-Queue q_create(const size_t element_size);
-void  q_destroy(Queue* q);
+Queue pq_create(const size_t element_size);
+void  pq_destroy(Queue* q);
 
 // peeks from front of queue (FIFO)
-void* q_peek(Queue* q);
+void* pq_peek(Queue* q);
 // pops from front of queue (FIFO)
-void* q_pop(Queue* q);
+void* pq_pop(Queue* q);
 // pushes to back of queue
-void q_push(Queue* q, void* element);
+void pq_push(Queue* q, void* element);
 void q_print(Queue* q, void (*print_function)(void*));

@@ -1,7 +1,9 @@
 #pragma once
 #include "types.h"
+#include <assert.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #define vec2_unpack(p) p.x, p.y
 #define vec2_sub(a, b)                                                                             \
@@ -37,4 +39,9 @@
 
 static inline vec2 screen_to_grid(vec2 s_pos) {
     return vec2_idiv(s_pos, BLOCK_SZ);
+}
+static inline u64 urand(u64 min, u64 max) {
+    u64 range = max - min;
+    assert(range >= 0 || "Bro");
+    return (min + (rand() % range));
 }

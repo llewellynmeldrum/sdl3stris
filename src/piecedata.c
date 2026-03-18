@@ -3,37 +3,47 @@
 #include "sdlwrappers.h"
 #include "sugar.h"
 
-// piecedata.c
-static const SDL_FColor purple[] = {
-    rgb(80, 0, 120), rgb(144, 0, 216), rgb(160, 0, 240), rgb(221, 153, 255), rgb(230, 178, 255),
-};
-static const SDL_FColor green[] = {
-    rgb(0, 120, 0), rgb(0, 216, 0), rgb(0, 240, 0), rgb(153, 255, 153), rgb(178, 255, 178),
-};
-static const SDL_FColor grey[] = {
-    rgb(0, 0, 0), rgb(80, 80, 80), rgb(120, 120, 120), rgb(153, 153, 153), rgb(200, 200, 200),
-};
-static const SDL_FColor red[] = {
-    rgb(120, 0, 0), rgb(216, 0, 0), rgb(240, 0, 0), rgb(255, 153, 153), rgb(255, 178, 178),
-};
-static const SDL_FColor blue[] = {
-    rgb(0, 0, 120), rgb(0, 0, 216), rgb(0, 0, 240), rgb(153, 153, 255), rgb(178, 178, 255),
-};
-static const SDL_FColor yellow[] = {
-    rgb(120, 120, 0), rgb(216, 216, 0), rgb(240, 240, 0), rgb(255, 255, 153), rgb(255, 255, 178),
-};
-static const SDL_FColor orange[] = {
-    rgb(120, 80, 0), rgb(216, 144, 0), rgb(240, 160, 0), rgb(255, 221, 153), rgb(255, 230, 178),
-};
-static const SDL_FColor cyan[5] = {
-    rgb(0, 120, 120), rgb(0, 216, 216), rgb(0, 240, 240), rgb(153, 255, 255), rgb(178, 255, 255),
-};
-
 static const vec2 I_Piece_Offsets[4] = {
     { 0, 0 },
     { 0, 1 },
     { 0, 2 },
     { 0, 3 },
+};
+static const vec2 J_Piece_Offsets[] = {
+    { 0, 0 },
+    { 0, 1 },
+    { 0, 2 },
+    { -1, 2 },
+};
+static const vec2 L_Piece_Offsets[] = {
+    { 0, 0 },
+    { 0, 1 },
+    { 0, 2 },
+    { 1, 2 },
+};
+static const vec2 O_Piece_Offsets[] = {
+    { 0, 0 },
+    { 0, 1 },
+    { 1, 0 },
+    { 1, 1 },
+};
+static const vec2 S_Piece_Offsets[] = {
+    { 0, 1 },
+    { 1, 1 },
+    { 1, 0 },
+    { 2, 0 },
+};
+static const vec2 T_Piece_Offsets[] = {
+    { 0, 0 },
+    { 1, 0 },
+    { 2, 0 },
+    { 1, 1 },
+};
+static const vec2 Z_Piece_Offsets[] = {
+    { 0, 0 },
+    { 1, 0 },
+    { 1, 1 },
+    { 2, 1 },
 };
 static const vec2 Wall_Piece_Offsets[1] = {
     { 0, 0 },
@@ -47,25 +57,31 @@ static const vec2 Wall_Piece_Offsets[1] = {
                                            .offsets_len = ARRLEN(CONCAT(T, _Offsets)),             \
                                            .offsets = CONCAT(T, _Offsets) }
 
-DECL_PIECE(I_Piece, cyan, 0, 1);
 DECL_PIECE(Wall_Piece, grey, 0, 1);
+DECL_PIECE(I_Piece, cyan, 0, 1);
+DECL_PIECE(J_Piece, blue, 0, 1);
+DECL_PIECE(L_Piece, orange, 0, 1);
+DECL_PIECE(O_Piece, yellow, 0, 1);
+DECL_PIECE(S_Piece, green, 0, 1);
+DECL_PIECE(T_Piece, purple, 0, 1);
+DECL_PIECE(Z_Piece, red, 0, 1);
 
 // this is just used to make writing them easier, all are expanded
 #define unwrap(T)                                                                                  \
     case PieceType_##T:                                                                            \
-        return &(CONCAT(PD_, T));                                                                  \
+        return &(CONCAT(PieceDef_, T));                                                            \
         break
 
 const PieceDef* get_piece_def(PieceType T) {
     switch (T) {
-    case PieceType_I_Piece:
-        return &PieceDef_I_Piece;
-        break;
-
-    case PieceType_Wall_Piece:
-        return &(PieceDef_Wall_Piece);
-        break;
-
+        unwrap(I_Piece);
+        unwrap(Wall_Piece);
+        unwrap(J_Piece);
+        unwrap(L_Piece);
+        unwrap(O_Piece);
+        unwrap(S_Piece);
+        unwrap(T_Piece);
+        unwrap(Z_Piece);
     default:
         fprintf(stderr, "Unimplemented, do I_PIECE. Expect a segfault");
         return NULL;
