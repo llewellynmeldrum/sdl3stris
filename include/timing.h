@@ -1,7 +1,10 @@
 #pragma once
+#include "sdlwrappers.h"
 #include <sys/time.h>
 
-double get_current_ms();
+static inline double get_current_ms() {
+    return (SDL_GetPerformanceCounter() / (double)ctx.clock_freq) * 1000.0;
+}
 /*
 typedef struct timeval Timeval;
 

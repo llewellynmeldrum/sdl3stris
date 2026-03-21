@@ -10,28 +10,22 @@
 
 void g_drawPieceDebugMode(const vec2 g_topLeftPos, const vec2* l_blockOffsets, PieceType T);
 
-void g_drawPiece(vec2 g_topLeftPos, PieceType T) {
+void g_drawPiece(vec2 g_topLeftPos, PieceType T, int temp_rot) {
     PieceData* piece = get_piece_data(T);
     vec2       s_pos = grid_to_screen(g_topLeftPos);
 
-    // TESTING ROTATION, ACTUAL ROTATION WILL APPLY TO OFFSETS
-    //    vec2 rotated_offsets[OFFSET_LEN] = {};
-    //    for (int i = 0; i < OFFSET_LEN; i++) {
-    //        rotated_offsets[i] = piece->l_blockOffsets[i];
-    //        double rotation = M_PI_2 * 1;  // ctx.rotation_idx;
-    //        rotated_offsets[i] = rotate_vec2(rotated_offsets[i], rotation);
-    //    }
-    // TESTING ROTATION, ACTUAL ROTATION WILL APPLY TO OFFSETS
-
+    g_drawPieceDebugMode(g_topLeftPos, piece->l_blockOffsets, piece->type);
     for (int i = 0; i < OFFSET_LEN; i++) {
-        vec2 g_blockPos = local_to_grid(piece->l_blockOffsets[i], g_topLeftPos);
+        double rotation = M_PI_2 * temp_rot;  // ctx.rotation_idx;
+        vec2   origin = vec2_sub(piece->l_blockOffsets[i], piece->l_rot_origin);
+        vec2   rotated_offset = rotate_vec2(origin, rotation);
+
+        vec2 g_blockPos = local_to_grid(rotated_offset, g_topLeftPos);
+        //        vec2   g_blockPos = local_to_grid(piece->l_blockOffsets[i], g_topLeftPos);
         vec2 s_blockPos = grid_to_screen(g_blockPos);
-        LOGLN("%d: offset: L={%.2f,%.2f},G={%.2f,%.2f} S={%.2f,%.2f}", i,
-              vec2_unpack(piece->l_blockOffsets[i]), vec2_unpack(g_blockPos),
-              vec2_unpack(s_blockPos));
+        // TESTING ROTATION, ACTUAL ROTATION WILL APPLY TO OFFSETS
         s_drawBlock(s_blockPos, BLOCK_SZ, piece->colorscheme);
     }
-    g_drawPieceDebugMode(g_topLeftPos, piece->l_blockOffsets, piece->type);
 }
 void g_drawPieceDebugMode(const vec2 g_topLeftPos, const vec2* l_blockOffsets, PieceType T) {
     // find the min and max local coords in offsets
@@ -56,11 +50,24 @@ void g_drawPieceDebugMode(const vec2 g_topLeftPos, const vec2* l_blockOffsets, P
     vec2       g_rot_origin = vec2_add(g_topLeftPos, pd->l_rot_origin);
     //    drawGrid(g_min, g_max);
     // draw the bounds (min and max)
-    g_drawBlock(g_max, BLOCK_SZ, grey);
-    g_drawBlock(g_min, BLOCK_SZ, grey);
+
+    {
+        int gx = g_min.x - 1;
+        for (int gy = g_min.y; gy < g_max.y; gy++) {
+            g_drawBlock((vec2){ gx, gy }, BLOCK_SZ, grey);
+        }
+    }
+    {
+        int gx = g_max.x;
+        for (int gy = g_min.y; gy < g_max.y; gy++) {
+            g_drawBlock((vec2){ gx, gy }, BLOCK_SZ, grey);
+        }
+    }
+    //    g_drawBlock(g_min, BLOCK_SZ, grey);
 
     // draw the origin
     g_drawBlockSpecial(g_rot_origin, BLOCK_SZ, WHITE);
+    // NOTE: fix the rotation origin display
 }
 void s_drawPieceSpecial(vec2 s_pos, const vec2* offsets, const ColorScheme colorscheme) {
     for (int i = 0; i < OFFSET_LEN; i++) {
@@ -109,6 +116,7 @@ void drawGrid(vec2 g_min, vec2 g_max) {
 }
 
 void drawWalls(void) {
+    return;
     PieceData* wall_piece = get_piece_data(PieceType_Wall_Piece);
     // draw floor
     {

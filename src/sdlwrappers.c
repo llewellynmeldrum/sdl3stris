@@ -1,29 +1,27 @@
 #include <math.h>
 
+#include "logger.h"
 #include "sdlwrappers.h"
 #include "types.h"
 
 // clang-format off
-SDLContext ctx = {};
+SDLContext ctx;
+#define DEFAULT_PRESS_DELAY_MS 80
 SDLContext init_ctx() {
     const size_t RB_CAP = 10000;
 
-    return (SDLContext){
+    SDLContext default_ctx = {
         .input = {
-            .m1_pressed = false,
-            .m2_pressed = false,
-            .up_arrow_pressed = false,
-            .down_arrow_pressed = false,
-            .left_arrow_pressed = false,
-            .right_arrow_pressed = false,
-            .g_mpos = {},
-            .s_mpos = {}
+            .PRESS_DELAY_MS = DEFAULT_PRESS_DELAY_MS,
+            .key_repeat_delay_ms_remaining = DEFAULT_PRESS_DELAY_MS,
         },
 
         .perf = {
-            .show_perf_in_debug = false,
+            .show_perf_in_debug = true,
             .fps_rb = rb_create(sizeof(double), RB_CAP),
-            .ft_rb = rb_create(sizeof(double), RB_CAP)
+            .ft_rb = rb_create(sizeof(double), RB_CAP),
+            .ms_lastframe = 0.0,
+            .ms_thisframe = 0.0,
         },
 
         .draw = {
@@ -38,4 +36,7 @@ SDLContext init_ctx() {
         .rows = DEF_ROWS
 
     };
+    LOGLN("thisframe: %lf",default_ctx.perf.ms_thisframe);
+    LOGLN("lastframe: %lf",default_ctx.perf.ms_lastframe);
+    return default_ctx;
 }

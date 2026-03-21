@@ -4,7 +4,8 @@
 #include "sugar.h"
 
 // src/game/draw.c
-void g_drawPiece(vec2 g_topLeftPos, PieceType T);
+// void g_drawPiece(vec2 g_topLeftPos, PieceType T);
+void g_drawPiece(vec2 g_topLeftPos, PieceType T, int temp_rot);
 void drawGrid(vec2 tl, vec2 br);
 void drawWalls(void);
 

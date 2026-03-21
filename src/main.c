@@ -27,15 +27,30 @@ typedef struct GridState {
 } GridState;
 
 typedef enum GameState {
-    GameStatePaused,  // game is paused
-    GameStateActive,  // pieces are falling
+    GameStateStartMenu,
+    GameStatePaused,
+    GameStateActive,
 } GameState;
+
+typedef enum Direction {
+    Direction_UP,
+    Direction_LEFT,
+    Direction_DOWN,
+    Direction_RIGHT,
+} Direction;
+
+typedef struct Piece {
+    PieceData* pd;
+    Direction  facing;
+} Piece;
+
 typedef struct GameContext {
     GameState  state;
     PieceQueue piecequeue;
     size_t     tick;  // gametick = 20 per second, gametick = (ms_since_start / 1000)*20
     GridState  gridstate;
     double     droptimer;
+    Piece      fallingPiece;
 } GameContext;
 
 PieceType random_piece() {
@@ -51,6 +66,7 @@ GameContext init_GameContext() {
         .tick = 0,
         .droptimer = 5000.0,  // ms until a new piece is dropped
                               // starts counting down when there is no piece in the air
+        .fallingPiece = {},
     };
     srand(time(NULL));
     for (int i = 0; i < PQ_CAPACITY; i++) {
@@ -61,28 +77,61 @@ GameContext init_GameContext() {
 }
 GameContext gtx;
 
-void profileStats() {
+void profileStats(i64* res_param_dt_ms) {
     ctx.frame_count++;  // i like the first frame to be 1
+    //
     ctx.perf.ms_thisframe = get_current_ms();
-    double ft_ms = ctx.perf.ms_thisframe - ctx.perf.ms_lastframe;
-    double fps = 1000.0 / (ft_ms);
-    rb_push(ctx.perf.ft_rb, &ft_ms);
+    double dt = ctx.perf.ms_thisframe - ctx.perf.ms_lastframe;
+    if (!ctx.perf.ms_lastframe) {
+        dt = 1;
+    }
+    double fps = 1000.0 / dt;
+    rb_push(ctx.perf.ft_rb, &dt);
     rb_push(ctx.perf.fps_rb, &fps);
     set_debug_overlay();
+
+    *res_param_dt_ms = (i64)dt;
 }
 
 void drawPieceQueue(PieceQueue pq) {
     PieceQueueNode* cur = pq.head;
     vec2            g_queue_pos = { ctx.cols - PLAYFIELD_GXOFFSET + 1, 2 };
+    LOGERR("This function is commented out.");
+    /*
     for (int i = 0; i < pq.size; i++) {
         PieceData* pd = get_piece_data(cur->type);
         g_drawPiece(g_queue_pos, cur->type);
         g_queue_pos.y += 4;
         cur = cur->prev;  // moving down the queue towards the back
     }
+    */
+}
+
+GameContext updateGameContext(i64 dt_ms, GameContext gtx) {
+    // go through state, all that other shit and build new frames gamecontext based on inputs
+    // handle input
+
+    ctx.input.key_repeat_delay_ms_remaining -= dt_ms;
+
+    if (ctx.input.rotate_left_pressed) {
+        gtx.fallingPiece.facing++;
+        gtx.fallingPiece.facing %= 3;
+        LOG("%d\n", gtx.fallingPiece.facing);
+        ctx.input.rotate_left_pressed = false;
+    }
+    if (ctx.input.rotate_right_pressed) {
+        gtx.fallingPiece.facing--;
+        gtx.fallingPiece.facing %= 3;
+        LOG("%d\n", gtx.fallingPiece.facing);
+        ctx.input.rotate_right_pressed = false;
+    }
+    ctx.input.key_repeat_delay_ms_remaining = ctx.input.PRESS_DELAY_MS;
+    return gtx;
 }
 SDL_AppResult SDL_AppIterate(void* _) {
-    profileStats();
+    i64 dt_ms = {};
+    profileStats(&dt_ms);
+    gtx = updateGameContext(dt_ms, gtx);
 
     setcolor(ctx.draw.clear_color);
     SDL_RenderClear(ctx.renderer);
@@ -91,23 +140,32 @@ SDL_AppResult SDL_AppIterate(void* _) {
     {
         vec2 g_tlpos = { 2, 2 };
         for (PieceType T = 0; T < 4; T++) {
-            g_drawPiece(g_tlpos, T);
-            g_tlpos.x += 4;
+            g_drawPiece(g_tlpos, T, gtx.fallingPiece.facing);
+            g_tlpos.x += 5;
         }
     }
     {
         // figure out transparency it would be nice for debugging maybe
         // anyway figure out the origins and get rotation down.
+        //
         vec2 g_tlpos = { 2, 8 };
         for (PieceType T = 4; T < PieceType_COUNT; T++) {
-            g_drawPiece(g_tlpos, T);
-            g_tlpos.x += 4;
+            g_drawPiece(g_tlpos, T, gtx.fallingPiece.facing);
+            g_tlpos.x += 5;
         }
     }
     // drawPieceQueue(gtx.piecequeue);
     // // playgrid:
     // drawGrid((vec2){ PLAYFIELD_GXOFFSET, 0 },
     //         (vec2){ ctx.cols - PLAYFIELD_GXOFFSET, PLAYFIELD_HEIGHT });
+    //
+    // TESTING ROTATION, ACTUAL ROTATION WILL APPLY TO OFFSETS
+    //    vec2 rotated_offsets[OFFSET_LEN] = {};
+    //    for (int i = 0; i < OFFSET_LEN; i++) {
+    //        rotated_offsets[i] = piece->l_blockOffsets[i];
+    //        double rotation = M_PI_2 * 1;  // ctx.rotation_idx;
+    //        rotated_offsets[i] = rotate_vec2(rotated_offsets[i], rotation);
+    //    }
     drawDebugOverlay(true);
     SDL_RenderPresent(ctx.renderer);
     ctx.perf.ms_lastframe = ctx.perf.ms_thisframe;
@@ -117,7 +175,6 @@ SDL_AppResult SDL_AppIterate(void* _) {
 SDL_AppResult SDL_AppInit(void** _, int argc, char* argv[]) {
     ctx = init_ctx();
     gtx = init_GameContext();
-    ctx.perf.ms_lastframe = get_current_ms();
     SDL_SetAppMetadata("cstris", "1.0", "lmeldrum.cstris");
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO)) {
@@ -146,10 +203,12 @@ void printmpos() {
 // clang-format off
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
     (void)appstate;
+    ctx.input.rotate_left_pressed = false;
+    ctx.input.rotate_right_pressed = false;
     switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
         ctx.input.m1_pressed = (event->button.button == 1) ? true : ctx.input.m1_pressed,
-        printmpos();
+//        printmpos();
         ctx.input.m2_pressed = (event->button.button == 2) ? true : ctx.input.m2_pressed;
         break;
     case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -164,18 +223,18 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 
     case SDL_EVENT_KEY_DOWN:
         switch(event->key.key){
-        case SDLK_UP: ctx.input.up_arrow_pressed = true; break;
-        case SDLK_DOWN: ctx.input.down_arrow_pressed = true; break;
-        case SDLK_LEFT: ctx.input.left_arrow_pressed = true; break;
-        case SDLK_RIGHT: ctx.input.right_arrow_pressed = true; break;
+        case SDLK_UP: ctx.input.slow_drop_pressed = true; break;
+        case SDLK_DOWN: ctx.input.fast_drop_pressed = true; break;
+        case SDLK_LEFT: ctx.input.rotate_left_pressed = true; break;
+        case SDLK_RIGHT: ctx.input.rotate_right_pressed = true; break;
         }
         break;
     case SDL_EVENT_KEY_UP:
         switch(event->key.key){
-        case SDLK_UP:       ctx.input.up_arrow_pressed =    false; break;
-        case SDLK_DOWN:     ctx.input.down_arrow_pressed =  false; break;
-        case SDLK_LEFT:     ctx.input.left_arrow_pressed =  false; break;
-        case SDLK_RIGHT:    ctx.input.right_arrow_pressed = false; break;
+//        case SDLK_UP:       ctx.input.slow_drop_pressed =    false; break;
+//        case SDLK_DOWN:     ctx.input.fast_drop_pressed =  false; break;
+//        case SDLK_LEFT:     ctx.input.rotate_left_pressed =  false; break;
+//        case SDLK_RIGHT:    ctx.input.rotate_right_pressed = false; break;
         }
         break;
 
@@ -209,8 +268,8 @@ void set_debug_overlay(void) {
     OVERLAY_PRINTLN("spos: %.2f %.2f", vec2_unpack(ctx.input.s_mpos));
     OVERLAY_PRINTLN("gpos: %.2f %.2f", vec2_unpack(s_mpos));
     OVERLAY_PRINTLN("m1:%d|m2:%d|UP:%d|DN:%d|LE:%d|RI:%d", ctx.input.m1_pressed,
-                    ctx.input.m2_pressed, ctx.input.up_arrow_pressed, ctx.input.down_arrow_pressed,
-                    ctx.input.left_arrow_pressed, ctx.input.right_arrow_pressed);
+                    ctx.input.m2_pressed, ctx.input.slow_drop_pressed, ctx.input.fast_drop_pressed,
+                    ctx.input.rotate_left_pressed, ctx.input.rotate_right_pressed);
 
     if (ctx.perf.show_perf_in_debug) {
         OVERLAY_PRINTLN("frametime: %.4lf", dbl_rb_avg(ctx.perf.ft_rb));

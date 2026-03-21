@@ -2,16 +2,19 @@
 #include "ringbuffer.h"
 #include "types.h"
 #include "vec2.h"
+// src/sdlwrappers.c
 
 typedef struct {
     bool m1_pressed;
     bool m2_pressed;
-    bool up_arrow_pressed;
-    bool down_arrow_pressed;
-    bool left_arrow_pressed;
-    bool right_arrow_pressed;
+    bool slow_drop_pressed;
+    bool fast_drop_pressed;
+    bool rotate_left_pressed;
+    bool rotate_right_pressed;
     vec2 s_mpos;  // raw mouse position, updated on mouse move event
     vec2 g_mpos;  // mouse position snapped to grid.
+    i64  key_repeat_delay_ms_remaining;
+    i64  PRESS_DELAY_MS;
 } Input;
 
 typedef struct {

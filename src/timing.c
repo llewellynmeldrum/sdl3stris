@@ -4,10 +4,6 @@
 #include "sdlwrappers.h"
 #include "timing.h"
 
-double get_current_ms() {
-    return (SDL_GetPerformanceCounter() / (double)ctx.clock_freq) * 1000.0;
-}
-
 /*
 #define SECS_PER_MIN 60
 #define MSECS_PER_SEC 1000

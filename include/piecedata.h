@@ -18,6 +18,7 @@ typedef enum {
 } PieceType;
 #define PieceType_END PieceType_Z_Piece
 #define PieceType_COUNT (PieceType_Z_Piece + 1)
+
 typedef const struct PieceData {
     const PieceType   type;         // see PieceType
     const SDL_FColor* colorscheme;  // contains increasing in brightness color bands for that piece
