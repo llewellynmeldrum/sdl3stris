@@ -8,6 +8,8 @@
 #include <string.h>
 
 #include "piecedata.h"
+// The rotations are based on this [website](https://tetris.wiki/images/3/3d/SRS-pieces.png)
+
 static const vec2 I_Piece_BoundingBox = { 4, 4 };
 static const vec2 I_Piece_RotationOffsets[ROTATION_COUNT * BLOCKS_PER_PIECE] = {
     // horizontal, 0 degrees
