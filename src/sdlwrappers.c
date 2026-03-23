@@ -7,7 +7,6 @@
 #include "types.h"
 
 // clang-format off
-SDLContext ctx;
 
 
 #define DEFAULT_PRESS_DELAY_MS 80

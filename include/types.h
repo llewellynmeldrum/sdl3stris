@@ -20,4 +20,18 @@ typedef int8_t  i8;
 #define DEF_WIDTH ((double)640)
 #define DEF_HEIGHT ((double)960)
 #define BLOCK_SZ (DEF_WIDTH / DEF_COLS)
-#define DEF_CELLCOUNT (int)(DEF_COLS * DEF_ROWS)
+
+// clang-format off -> really doesnt like xmacros
+#define Direction__LIST                                                                            \
+    X(Direction_UP)                                                                                \
+    X(Direction_LEFT)                                                                              \
+    X(Direction_DOWN)                                                                              \
+    X(Direction_RIGHT)
+
+#define X(dir) dir,
+typedef enum Direction {
+    Direction__LIST  //
+            Direction_COUNT
+} Direction;
+#undef X
+const char* Direction_tostr(Direction dir);

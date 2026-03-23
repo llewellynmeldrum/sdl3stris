@@ -1,4 +1,5 @@
 #include "game/internal_draw.h"
+#include "logger.h"
 #include "primitives.h"
 
 void g_drawBlockSpecial(vec2 g_topLeftPos, double extent, const ColorScheme colorscheme,

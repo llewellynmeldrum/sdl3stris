@@ -87,7 +87,7 @@ run: $(EXE)
 #NOTE: AVOID PUTTING TARGETS IN CLEAN COMMAND! BE VERY SPECIFIC SO YOU DONT NUKE YOUR SOURCE FILES ON ACCIDENT
 clean: 
 	$(ECHO_CLEAN_BANNER)
-	rm -f build/*.o src/*.o bin/*
+	rm -f build/**/*.o src/*.o bin/*
 
 # ------------ DEBUGGING ------------ #
 debug: $(EXE)
@@ -118,7 +118,7 @@ ausan: LDFLAGS += -fsanitize=undefined
 ausan: LDLIBS  += -fsanitize=undefined 
 ausan: clean run
 
-tsan: CFLAGS  += -fsanitize=thread -fno-omit-frame-pointer 
+tsan: CFLAGS  += -fsanitize=thread -fno-omit-frame-pointer  -g
 tsan: LDFLAGS += -fsanitize=thread
 tsan: LDLIBS  += -fsanitize=thread
 tsan: clean run 

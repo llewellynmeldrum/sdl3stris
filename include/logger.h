@@ -15,6 +15,8 @@
 #define BOLD_RED "\e[1;31m"
 #define GREEN "\e[32m"
 #define BOLD_GREEN "\e[1;32m"
+#define YELLOW "\e[34m"
+#define BOLD_YELLOW "\e[1;34m"
 // Given two heap allocated strings, insert `src` starting at `dst[pos]`.
 // dst is reallocated to be the size of the two strings combined, i.e strlen(src)+strlen(dst)+1.
 // (The null pointer of src is not copied.
@@ -100,6 +102,14 @@ LIST_TYPES
     do {                                                                                           \
         LOG(RED);                                                                      \
         LOG("[ERROR] in ->");                                                                      \
+        LOG_INFO_FN();                                                                              \
+        LOG(END_STYLE);                                                                            \
+        LOGLN(fmt, ##__VA_ARGS__);                                                     \
+    } while (0)
+#define LOGNOTICE(fmt, ...)                                                                           \
+    do {                                                                                           \
+        LOG(YELLOW);                                                                      \
+        LOG("[NOTICE] in ->");                                                                      \
         LOG_INFO_FN();                                                                              \
         LOG(END_STYLE);                                                                            \
         LOGLN(fmt, ##__VA_ARGS__);                                                     \

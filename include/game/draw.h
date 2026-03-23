@@ -6,6 +6,7 @@
 // src/game/draw.c
 // void g_drawPiece(vec2 g_topLeftPos, PieceType T);
 void g_drawPiece(vec2 g_topLeftPos, PieceType T, int temp_rot);
+void drawPlayField(void);
 void drawGrid(vec2 tl, vec2 br);
 void g_drawBlock(vec2 gridPos, double len, const ColorScheme piece_colors);
 void drawWalls(void);

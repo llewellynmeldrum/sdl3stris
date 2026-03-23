@@ -1,5 +1,6 @@
 #include "game/draw.h"
 #include "game/internal_draw.h"  // src/game/internal_draw.c
+#include "gamecontext.h"
 #include "logger.h"
 #include "piecedata.h"
 #include "primitives.h"
@@ -19,6 +20,17 @@ void g_drawBlock(vec2 g_pos, double extent, const ColorScheme colorscheme) {
     s_drawBlock(s_topLeftPos, extent, colorscheme);
 }
 
+void drawPlayField(void) {
+    drawGrid((vec2){ PLAYFIELD_XMIN, PLAYFIELD_YMIN }, (vec2){ PLAYFIELD_XMAX, PLAYFIELD_YMAX });
+    for (int y = PLAYFIELD_YMIN; y < PLAYFIELD_YMAX; y++) {
+        for (int x = PLAYFIELD_XMIN; x < PLAYFIELD_XMAX; x++) {
+            int idx = get_grid_idx(x, y);
+            if (gtx.grid[idx].occupied) {
+                g_drawBlock((vec2){ x, y }, BLOCK_SZ, gtx.grid[idx].colorscheme);
+            }
+        }
+    }
+}
 void g_drawPiece(vec2 g_topLeftPos, PieceType T, int temp_rot) {
     PieceData* piece = get_piece_data(T);
 
