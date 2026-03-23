@@ -22,10 +22,13 @@ typedef enum {
 #define PieceType_END PieceType_Z_Piece
 #define PieceType_COUNT (PieceType_Z_Piece + 1)
 
+static inline const size_t GET_BLOCK_IDX(size_t rotation_idx, size_t block_idx) {
+    return rotation_idx * ROTATION_COUNT + block_idx;
+}
 typedef const struct PieceData {
     const PieceType   type;         // see PieceType
     const SDL_FColor* colorscheme;  // contains increasing in brightness color bands for that piece
-    const vec2*       l_blockOffsets;  // Contains an array of blockOffset lists, for each rotation
+    const vec2*       l_blockOffsets;  // **!USE GET_BLOCK_IDX(rotation_idx, block_idx) TO INDEX!**
     const vec2        l_rot_origin;    // describes the origin of the piece in piece space
     const size_t      rotation_count;
     const vec2        l_boundingBox;

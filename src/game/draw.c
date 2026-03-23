@@ -19,7 +19,6 @@ void g_drawBlock(vec2 g_pos, double extent, const ColorScheme colorscheme) {
     s_drawBlock(s_topLeftPos, extent, colorscheme);
 }
 
-#define GET_BLOCK_IDX(rotation_idx, block_idx) (rotation_idx * ROTATION_COUNT + i)
 void g_drawPiece(vec2 g_topLeftPos, PieceType T, int temp_rot) {
     PieceData* piece = get_piece_data(T);
 
@@ -52,9 +51,6 @@ void drawGrid(vec2 g_min, vec2 g_max) {
     u64 width = g_max.x - g_min.x;
     u64 height = g_max.y - g_min.y;
 
-    LOG("%llu\n", height);
-    LOG("%lf,%lf, %lf,%lf\n", vec2_unpack(g_min), vec2_unpack(g_max));
-    LOG("%llu\n", width);
     SDL_FColor previous_color;
     getcolor(previous_color);
     setcolor(GREY(128));
@@ -91,9 +87,9 @@ void drawWalls(void) {
     PieceData* wall_piece = get_piece_data(PieceType_Wall_Piece);
     // draw floor
     {
-        vec2 o = { 0, ctx.rows - PLAYFIELD_GYOFFSET };
+        vec2 o = { 0, ctx.rows - PLAYFIELD_YMIN };
         for (int x = 0; x < DEF_COLS; x++) {
-            for (int y = 0; y < PLAYFIELD_GYOFFSET; y++) {
+            for (int y = 0; y < PLAYFIELD_YMIN; y++) {
                 vec2 pos = { o.x + x, o.y + y };
                 pos = vec2_mul(pos, BLOCK_SZ);
                 s_drawBlock(pos, BLOCK_SZ, wall_piece->colorscheme);
@@ -103,10 +99,10 @@ void drawWalls(void) {
     {
         // draw left wall
         vec2 g_leftWall = { 0, 0 };
-        vec2 g_rightWall = { ctx.cols - PLAYFIELD_GXOFFSET, 0 };
+        vec2 g_rightWall = { ctx.cols - PLAYFIELD_XMIN, 0 };
         vec2 s_leftWall = grid_to_screen(g_leftWall);
         vec2 s_rightWall = grid_to_screen(g_rightWall);
-        for (int x = 0; x < PLAYFIELD_GXOFFSET; x += BLOCK_SZ) {
+        for (int x = 0; x < PLAYFIELD_XMIN; x += BLOCK_SZ) {
             for (int y = 0; y < DEF_ROWS; y += BLOCK_SZ) {
                 vec2 s_leftWall = { s_leftWall.x + x, s_leftWall.y + y };
                 vec2 s_rightWall = { PLAYFIELD_WIDTH + s_rightWall.x + x, s_rightWall.y + y };

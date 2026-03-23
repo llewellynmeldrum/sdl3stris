@@ -16,14 +16,11 @@ static inline vec2 snapToGrid(const vec2 s_pos) {
     return (vec2){ ipx * BLOCK_SZ, ipy * BLOCK_SZ };
 }
 
-static const i64 PLAYFIELD_X0 = 5;
-static const i64 PLAYFIELD_GXOFFSET = 5;
-static const i64 PLAYFIELD_Y0 = 0;
-static const i64 SIDE_WALL_WIDTH = 5;
+static const i64 PLAYFIELD_XMIN = 5;
+static const i64 PLAYFIELD_YMIN = 0;
 static const i64 PLAYFIELD_WIDTH = 10;
 static const i64 PLAYFIELD_HEIGHT = 20;
-static const i64 PLAYFIELD_X1 = PLAYFIELD_X0 + PLAYFIELD_WIDTH;
-static const i64 PLAYFIELD_Y1 = PLAYFIELD_Y0 + PLAYFIELD_HEIGHT;
-static const i64 PLAYFIELD_GYOFFSET = DEF_ROWS - PLAYFIELD_HEIGHT;
+static const i64 PLAYFIELD_XMAX = PLAYFIELD_XMIN + PLAYFIELD_WIDTH;
+static const i64 PLAYFIELD_YMAX = PLAYFIELD_YMIN + PLAYFIELD_HEIGHT;
 
-#define OFFSET_LEN 4  // number of blocks per piece
+static const i64 OFFSET_LEN = 4;

@@ -48,7 +48,7 @@ static inline vec2 vec2_sub(vec2 a, vec2 b) {
     return (vec2){ a.x - b.x, a.y - b.y };
 }
 // -> return a *vec2* containing the *piecewise* addtion of *a* to *b*
-static inline vec2 vec2_add(vec2 a, vec2 b) {
+static inline vec2 vec2_add(const vec2 a, const vec2 b) {
     return (vec2){ a.x + b.x, a.y + b.y };
 }
 // -> return a *vec2* containing the *piecewise* multiplication of *v* by *scalar*

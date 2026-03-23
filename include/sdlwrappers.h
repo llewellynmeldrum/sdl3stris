@@ -7,7 +7,7 @@
 typedef struct {
     bool m1_pressed;
     bool m2_pressed;
-    bool slow_drop_pressed;
+    bool instant_drop_pressed;
     bool fast_drop_pressed;
     bool rotate_left_pressed;
     bool rotate_right_pressed;
@@ -55,7 +55,7 @@ typedef struct {
 } VertexArray;
 // Background piece color
 void       drawVertexArray(VertexArray arr);
-SDLContext init_ctx();
+SDLContext init_ctx(SDL_Window* win, SDL_Renderer* rend, size_t w, size_t h);
 
 // SDL_FColor from 0->255 grey value.
 #define GREY(gr) (SDL_FColor){ gr / 255.0, gr / 255.0, gr / 255.0, 1.0 }

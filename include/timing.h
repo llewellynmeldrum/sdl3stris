@@ -1,13 +1,22 @@
 #pragma once
+#include "logger.h"
 #include "sdlwrappers.h"
 #include <sys/time.h>
+// #define DEBUG
 
-static inline double get_current_ms() {
-    return (SDL_GetPerformanceCounter() / (double)ctx.clock_freq) * 1000.0;
+static inline double get_current_ms(double freq) {
+    double counter = SDL_GetPerformanceCounter();
+    double res = (counter / freq) * 1000.0;
+
+#ifdef DEBUG
+    LOGLN("counter:%lf, res:%lf", counter, res);
+#endif
+    return res;
 }
 static inline double ms_since_start() {
-    return get_current_ms() - ctx.ms_at_start;
+    return get_current_ms(ctx.clock_freq) - ctx.ms_at_start;
 }
+#undef DEBUG
 /*
 typedef struct timeval Timeval;
 

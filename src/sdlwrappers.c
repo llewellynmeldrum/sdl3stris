@@ -1,15 +1,27 @@
+#include <assert.h>
 #include <math.h>
 
 #include "logger.h"
 #include "sdlwrappers.h"
+#include "timing.h"
 #include "types.h"
 
 // clang-format off
 SDLContext ctx;
-#define DEFAULT_PRESS_DELAY_MS 80
-SDLContext init_ctx() {
-    const size_t RB_CAP = 10000;
 
+
+#define DEFAULT_PRESS_DELAY_MS 80
+SDLContext init_ctx(SDL_Window* win, SDL_Renderer* rend, size_t w, size_t h) {
+    if (!win){
+        LOGERR("SDL window is null. SDLContext cannot be initialized without a valid window.");
+    }
+    if (!rend){
+        LOGERR("SDL renderer is null. SDLContext cannot be initialized without a valid renderer.");
+    }
+    assert(w> 0 && h>0 || "Invalid width/height passed to " || __FUNCTION__);
+
+
+    const size_t RB_CAPACITY = 10000;
     SDLContext default_ctx = {
         .input = {
             .PRESS_DELAY_MS = DEFAULT_PRESS_DELAY_MS,
@@ -18,8 +30,8 @@ SDLContext init_ctx() {
 
         .perf = {
             .show_perf_in_debug = true,
-            .fps_rb = rb_create(sizeof(double), RB_CAP),
-            .ft_rb = rb_create(sizeof(double), RB_CAP),
+            .fps_rb = rb_create(sizeof(double), RB_CAPACITY),
+            .ft_rb = rb_create(sizeof(double), RB_CAPACITY),
             .ms_lastframe = 0.0,
             .ms_thisframe = 0.0,
         },
@@ -27,16 +39,19 @@ SDLContext init_ctx() {
         .draw = {
             .clear_color = rgba(0.0, 0.0, 0.0, 255.0)
         },
-        .window = NULL,
-        .renderer = NULL,
-        .clock_freq = NAN,
-        .w = DEF_WIDTH,
-        .h = DEF_HEIGHT,
+        .window = win,
+        .renderer = rend,
+        .w = w,
+        .h = h,
         .cols = DEF_COLS,
-        .rows = DEF_ROWS
+        .rows = DEF_ROWS,
+        
 
     };
-    LOGLN("thisframe: %lf",default_ctx.perf.ms_thisframe);
-    LOGLN("lastframe: %lf",default_ctx.perf.ms_lastframe);
+    default_ctx.clock_freq = SDL_GetPerformanceFrequency(),
+    
+
+
+    default_ctx.ms_at_start = get_current_ms(default_ctx.clock_freq);
     return default_ctx;
 }
