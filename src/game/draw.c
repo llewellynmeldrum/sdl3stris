@@ -11,7 +11,7 @@
 
 void g_showPieceRotationOrigin(const vec2 g_topLeftPos, PieceType T);
 void g_showPieceBoundingBox(const vec2 g_topLeftPos, PieceType T) {
-    PieceData* pd = get_piece_data(T);
+    PieceData* pd = getPieceData(T);
     g_drawBlockSpecial(g_topLeftPos, pd->l_boundingBox.width * BLOCK_SZ, WHITE, 0.1);
 }
 
@@ -20,7 +20,7 @@ void g_drawBlock(vec2 g_pos, double extent, const ColorScheme colorscheme) {
     s_drawBlock(s_topLeftPos, extent, colorscheme);
 }
 
-void drawPlayField(void) {
+void drawPlayfield(void) {
     drawGrid((vec2){ PLAYFIELD_XMIN, PLAYFIELD_YMIN }, (vec2){ PLAYFIELD_XMAX, PLAYFIELD_YMAX });
     for (int y = PLAYFIELD_YMIN; y < PLAYFIELD_YMAX; y++) {
         for (int x = PLAYFIELD_XMIN; x < PLAYFIELD_XMAX; x++) {
@@ -32,20 +32,20 @@ void drawPlayField(void) {
     }
 }
 void g_drawPiece(vec2 g_topLeftPos, PieceType T, int temp_rot) {
-    PieceData* piece = get_piece_data(T);
+    PieceData* piece = getPieceData(T);
 
-    g_showPieceBoundingBox(g_topLeftPos, T);
+    //    g_showPieceBoundingBox(g_topLeftPos, T);
     for (int i = 0; i < OFFSET_LEN; i++) {
-        size_t idx = GET_BLOCK_IDX(temp_rot, i);
+        size_t idx = getBlockOffset(temp_rot, i);
         vec2   g_blockPos = local_to_grid(piece->l_blockOffsets[idx], g_topLeftPos);
         vec2   s_blockPos = grid_to_screen(g_blockPos);
         //        LOGLN("Block @[%.2f,%.2f]", g_blockPos.x, g_blockPos.y);
         s_drawBlock(s_blockPos, BLOCK_SZ, piece->colorscheme);
     }
-    g_showPieceRotationOrigin(g_topLeftPos, T);
+    //    g_showPieceRotationOrigin(g_topLeftPos, T);
 }
 void g_showPieceRotationOrigin(const vec2 g_topLeftPos, PieceType T) {
-    PieceData* pd = get_piece_data(T);
+    PieceData* pd = getPieceData(T);
     vec2       g_rot_origin = vec2_add(g_topLeftPos, pd->l_rot_origin);
 
     g_drawBlockSpecial(g_rot_origin, BLOCK_SZ, WHITE, 0.5);
@@ -96,7 +96,7 @@ void drawGrid(vec2 g_min, vec2 g_max) {
 
 void drawWalls(void) {
     return;
-    PieceData* wall_piece = get_piece_data(PieceType_Wall_Piece);
+    PieceData* wall_piece = getPieceData(PieceType_Wall_Piece);
     // draw floor
     {
         vec2 o = { 0, ctx.rows - PLAYFIELD_YMIN };

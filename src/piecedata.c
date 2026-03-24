@@ -187,16 +187,16 @@ static const vec2 Z_Piece_RotationOffsets[ROTATION_COUNT * BLOCKS_PER_PIECE] = {
 
 const vec2 o = { 0, 0 };
 
-DECL_PIECE(I_Piece, cyan, 1.5, 1.5);
-DECL_PIECE(J_Piece, blue, 1, 1);
-DECL_PIECE(L_Piece, orange, 1, 1);
-DECL_PIECE(O_Piece, yellow, 1.5, 0.5);
-DECL_PIECE(S_Piece, green, 1, 1);
-DECL_PIECE(T_Piece, purple, 1, 1);  // should make a cross -|-  when rotated fast
-DECL_PIECE(Z_Piece, red, 1, 1);
+DECL_PIECE(I_Piece, cyan_bands, 1.5, 1.5);
+DECL_PIECE(J_Piece, blue_bands, 1, 1);
+DECL_PIECE(L_Piece, orange_bands, 1, 1);
+DECL_PIECE(O_Piece, yellow_bands, 1.5, 0.5);
+DECL_PIECE(S_Piece, green_bands, 1, 1);
+DECL_PIECE(T_Piece, purple_bands, 1, 1);  // should make a cross -|-  when rotated fast
+DECL_PIECE(Z_Piece, red_bands, 1, 1);
 
 #define piece_data_TOSTR(expr) #expr
-const char* pttostr(PieceType T) {
+const char* pt_toStr(PieceType T) {
     switch (T) {
     case PieceType_I_Piece:
         return piece_data_TOSTR(PieceData_I_Piece);
@@ -225,7 +225,7 @@ const char* pttostr(PieceType T) {
         break;
     }
 }
-const PieceData* get_piece_data(PieceType T) {
+const PieceData* getPieceData(PieceType T) {
     switch (T) {
     case PieceType_I_Piece:
         return &PieceData_I_Piece;

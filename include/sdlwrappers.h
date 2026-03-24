@@ -9,15 +9,15 @@ typedef struct {
     bool m2_pressed;
     bool instant_drop_pressed;
     bool fast_drop_pressed;
-    bool rotate_left_pressed;
-    bool rotate_right_pressed;
+    bool rotate_left;
+    bool rotate_right;
     bool move_left_pressed;
     bool move_right_pressed;
     vec2 s_mpos;  // raw mouse position, updated on mouse move event
     vec2 g_mpos;  // mouse position snapped to grid.
     i64  key_repeat_delay_ms_remaining;
     i64  PRESS_DELAY_MS;
-} Input;
+} InputRequests;
 
 typedef struct {
     bool        show_perf_in_debug;
@@ -34,9 +34,9 @@ typedef struct {
 typedef struct SDLContext {
     SDL_Window*   window;
     SDL_Renderer* renderer;
-    Input         input;  // interface for input handler
-    Profiler      perf;   // holds performance info
-    Draw          draw;   // holds draw settings
+    InputRequests inputReq;  // interface for input handler
+    Profiler      perf;      // holds performance info
+    Draw          draw;      // holds draw settings
     // Primitives: (these should probably go into one of the other structs)
     u64    frame_count;
     u64    clock_freq;
@@ -46,6 +46,7 @@ typedef struct SDLContext {
     i64    rows;
     int    rotation_index;  // temporary
     size_t ms_at_start;
+    bool   running;
 } SDLContext;
 extern SDLContext ctx;  // global context, i dont need multiple.
 

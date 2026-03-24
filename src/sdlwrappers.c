@@ -22,7 +22,7 @@ SDLContext init_ctx(SDL_Window* win, SDL_Renderer* rend, size_t w, size_t h) {
 
     const size_t RB_CAPACITY = 10000;
     SDLContext default_ctx = {
-        .input = {
+        .inputReq = {
             .PRESS_DELAY_MS = DEFAULT_PRESS_DELAY_MS,
             .key_repeat_delay_ms_remaining = DEFAULT_PRESS_DELAY_MS,
         },
@@ -44,6 +44,7 @@ SDLContext init_ctx(SDL_Window* win, SDL_Renderer* rend, size_t w, size_t h) {
         .h = h,
         .cols = DEF_COLS,
         .rows = DEF_ROWS,
+        .running = true,
         
 
     };

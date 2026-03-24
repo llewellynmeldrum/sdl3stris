@@ -8,7 +8,9 @@
 # Do all of the above, but also make it pretty with fancy tput headers lol
 all: run
 
-MAKEFLAGS+= -j8
+ifndef SEQ
+	MAKEFLAGS+= -j8
+endif
 EXE_DIR	:=bin
 EXE_NAME :=test
 EXE :=$(EXE_DIR)/$(EXE_NAME)
@@ -21,14 +23,17 @@ SRC_EXT	:=.c
 OBJ_EXT :=.o
 
 
+
 CC		:=clang 
 SRC 	:=$(wildcard $(SRC_DIR)/*$(SRC_EXT))
 SRC 	+=$(wildcard $(SRC_DIR)/game/*$(SRC_EXT))
 OBJS 	:=$(patsubst $(SRC_DIR)/%$(SRC_EXT),$(OBJ_DIR)/%$(OBJ_EXT),$(SRC))
+DEPS:= $(patsubst $(OBJ_DIR)/%.o,$(OBJ_DIR)/%.d, $(OBJS))
 
 
 CFLAGS:=-std=c23 
 
+CFLAGS+=-MD -MP
 CFLAGS+=-Wall 
 CFLAGS+=-Wimplicit-fallthrough 
 CFLAGS+=-Werror 
@@ -39,14 +44,12 @@ CFLAGS+=-fno-show-column
 CFLAGS+=-fno-diagnostics-show-option
 CFLAGS+=-fdiagnostics-fixit-info
 
+-include $(DEPS)
+
 
 LDFLAGS	:= 
 LDLIBS	:= $(shell pkg-config sdl3 --libs)
 ALLFLAGS:=
-
-
-# libraries
-CFLAGS+= 
 
 
 CFLAGS	+=$(ALLFLAGS)
@@ -82,12 +85,13 @@ $(EXE): $(EXE_DIR) $(OBJ_DIR) $(OBJS)
 run: $(EXE)
 	@$(ECHO_EXE_BANNER)
 	./$(EXE) $(ARGS)
+	@printf "btw, make was run with args:%s" $(MAKEFLAGS) 
 
 	
 #NOTE: AVOID PUTTING TARGETS IN CLEAN COMMAND! BE VERY SPECIFIC SO YOU DONT NUKE YOUR SOURCE FILES ON ACCIDENT
 clean: 
 	$(ECHO_CLEAN_BANNER)
-	rm -f build/**/*.o src/*.o bin/*
+	rm -f build/*.o build/**/*.o  bin/*
 
 # ------------ DEBUGGING ------------ #
 debug: $(EXE)
@@ -95,7 +99,7 @@ debug: $(EXE)
 
 	
 # Address san: lower overhead than thread-san, cleaner stack traces,
-asan: CFLAGS  +=-fsanitize=address -O1 -fno-omit-frame-pointer -g 
+asan: CFLAGS  +=-fsanitize=address -fno-omit-frame-pointer -g 
 asan: LDFLAGS += 
 asan: LDLIBS  += 
 asan: ASAN_ENV:= ASAN_OPTIONS=abort_on_error=0

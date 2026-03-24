@@ -6,7 +6,7 @@
 // src/game/draw.c
 // void g_drawPiece(vec2 g_topLeftPos, PieceType T);
 void g_drawPiece(vec2 g_topLeftPos, PieceType T, int temp_rot);
-void drawPlayField(void);
+void drawPlayfield(void);
 void drawGrid(vec2 tl, vec2 br);
 void g_drawBlock(vec2 gridPos, double len, const ColorScheme piece_colors);
 void drawWalls(void);
@@ -23,5 +23,10 @@ static const i64 PLAYFIELD_WIDTH = 10;
 static const i64 PLAYFIELD_HEIGHT = 20;
 static const i64 PLAYFIELD_XMAX = PLAYFIELD_XMIN + PLAYFIELD_WIDTH;
 static const i64 PLAYFIELD_YMAX = PLAYFIELD_YMIN + PLAYFIELD_HEIGHT;
+
+static const i64 PLAYFIELD_SPAWN_XMIN = PLAYFIELD_XMIN;
+static const i64 PLAYFIELD_SPAWN_XMAX = PLAYFIELD_XMAX;
+static const i64 PLAYFIELD_SPAWN_YMIN = PLAYFIELD_YMIN - 5;
+static const i64 PLAYFIELD_SPAWN_YMAX = PLAYFIELD_YMAX;
 
 static const i64 OFFSET_LEN = 4;

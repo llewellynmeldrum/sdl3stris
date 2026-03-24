@@ -13,8 +13,9 @@ static inline double get_current_ms(double freq) {
 #endif
     return res;
 }
-static inline double ms_since_start() {
-    return get_current_ms(ctx.clock_freq) - ctx.ms_at_start;
+
+static inline double ms_since_start(SDLContext* ctx) {
+    return get_current_ms(ctx->clock_freq) - ctx->ms_at_start;
 }
 #undef DEBUG
 /*

@@ -22,7 +22,7 @@ typedef enum {
 #define PieceType_END PieceType_Z_Piece
 #define PieceType_COUNT (PieceType_Z_Piece + 1)
 
-static inline const size_t GET_BLOCK_IDX(size_t rotation_idx, size_t block_idx) {
+static inline size_t getBlockOffset(size_t rotation_idx, size_t block_idx) {
     return rotation_idx * ROTATION_COUNT + block_idx;
 }
 typedef const struct PieceData {
@@ -34,34 +34,34 @@ typedef const struct PieceData {
     const vec2        l_boundingBox;
 } PieceData;
 
-const PieceData*        get_piece_data(PieceType T);
-const char*             pttostr(PieceType T);
+const PieceData*        getPieceData(PieceType T);
+const char*             pt_toStr(PieceType T);
 static const SDL_FColor WHITE[] = {
     rgb(200, 200, 200), rgb(220, 220, 220), rgb(230, 230, 230),
     rgb(240, 240, 240), rgb(250, 255, 255),
 };
 // piecedata.c
-static const SDL_FColor purple[] = {
+static const SDL_FColor purple_bands[] = {
     rgb(80, 0, 120), rgb(144, 0, 216), rgb(160, 0, 240), rgb(221, 153, 255), rgb(230, 178, 255),
 };
-static const SDL_FColor green[] = {
+static const SDL_FColor green_bands[] = {
     rgb(0, 120, 0), rgb(0, 216, 0), rgb(0, 240, 0), rgb(153, 255, 153), rgb(178, 255, 178),
 };
-static const SDL_FColor grey[] = {
+static const SDL_FColor grey_bands[] = {
     rgb(0, 0, 0), rgb(80, 80, 80), rgb(120, 120, 120), rgb(153, 153, 153), rgb(200, 200, 200),
 };
-static const SDL_FColor red[] = {
+static const SDL_FColor red_bands[] = {
     rgb(120, 0, 0), rgb(216, 0, 0), rgb(240, 0, 0), rgb(255, 153, 153), rgb(255, 178, 178),
 };
-static const SDL_FColor blue[] = {
+static const SDL_FColor blue_bands[] = {
     rgb(0, 0, 120), rgb(0, 0, 216), rgb(0, 0, 240), rgb(153, 153, 255), rgb(178, 178, 255),
 };
-static const SDL_FColor yellow[] = {
+static const SDL_FColor yellow_bands[] = {
     rgb(120, 120, 0), rgb(216, 216, 0), rgb(240, 240, 0), rgb(255, 255, 153), rgb(255, 255, 178),
 };
-static const SDL_FColor orange[] = {
+static const SDL_FColor orange_bands[] = {
     rgb(120, 80, 0), rgb(216, 144, 0), rgb(240, 160, 0), rgb(255, 221, 153), rgb(255, 230, 178),
 };
-static const SDL_FColor cyan[5] = {
+static const SDL_FColor cyan_bands[] = {
     rgb(0, 120, 120), rgb(0, 216, 216), rgb(0, 240, 240), rgb(153, 255, 255), rgb(178, 255, 255),
 };

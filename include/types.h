@@ -14,9 +14,9 @@ typedef int32_t i32;
 typedef int16_t i16;
 typedef int8_t  i8;
 
+#define BUFFERZONE_ROWS 3
 #define DEF_COLS ((double)20)
-#define DEF_ROWS (DEF_HEIGHT / BLOCK_SZ)
-
+#define DEF_ROWS ((double)23)
 #define DEF_WIDTH ((double)640)
 #define DEF_HEIGHT ((double)960)
 #define BLOCK_SZ (DEF_WIDTH / DEF_COLS)
