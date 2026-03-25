@@ -8,9 +8,18 @@
 # Do all of the above, but also make it pretty with fancy tput headers lol
 all: run
 
-ifndef SEQ
-	MAKEFLAGS+= -j8
+OS:= $(shell uname -s)
+ifeq ($(OS), Darwin)
+	echo "macos"
+else ifeq ($(OS), Linux)
+	echo "linux"
 endif
+
+MAKEFLAGS+= -j8
+
+$(shell uname -s) = "Darwin" ]; then
+	echo "macos"
+fi
 EXE_DIR	:=bin
 EXE_NAME :=test
 EXE :=$(EXE_DIR)/$(EXE_NAME)
