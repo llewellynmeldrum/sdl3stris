@@ -1,36 +1,8 @@
-
-# my personal makefile, to do the following:
-# 1. Compile all $(SRC_EXT) files with selected compiler, into separate object files, in $(BUILD_DIR)
-# 2. Link all obj files we've just build against eachother
-# 3. include any libs through ldlibs, prefer using $(shell pkg-config <name>) pattern
-# 4. Offer options to debug segfaults, using adsan, usan, etc
-# Do all of the above, but also make it pretty with fancy tput headers lol
-
-# enabling this gives like 50% better build times rn lol
-QUIET:=1
-NCPU:=1
-OS:= $(shell uname -s)
-ifeq ($(OS),Darwin)
-	NCPU:=$(shell sysctl -n hw.ncpu)
-else ifeq ($(OS),Linux)
-	NCPU:=$(shell nproc)
-else 
-endif
-
 .PHONY: all clean run debug help h ? docs 
 
-all: run
 
-
-
-
-
-
-MAKEFLAGS:=-j$(NCPU)
-
-EXE_DIR	:=bin
-EXE_NAME :=test
-EXE :=$(EXE_DIR)/$(EXE_NAME)
+#all: test
+all: run 
 
 
 SRC_DIR	:=src
@@ -40,48 +12,15 @@ SRC_EXT	:=.c
 OBJ_EXT :=.o
 
 
-
-CC		:=clang 
 SRC 	:=$(wildcard $(SRC_DIR)/*$(SRC_EXT))
 SRC 	+=$(wildcard $(SRC_DIR)/game/*$(SRC_EXT))
 OBJS 	:=$(patsubst $(SRC_DIR)/%$(SRC_EXT),$(OBJ_DIR)/%$(OBJ_EXT),$(SRC))
-DEPS:= $(patsubst $(OBJ_DIR)/%.o,$(OBJ_DIR)/%.d, $(OBJS))
+DEPS	:=$(patsubst $(OBJ_DIR)/%$(OBJ_EXT),$(OBJ_DIR)/%.d, $(OBJS))
 
-
-CFLAGS:=-std=c23 
-
-# dependency file generator 
-CFLAGS+=-Wall -Wimplicit-fallthrough -Werror -Wno-unused 
-CFLAGS+=-Iinclude
-CFLAGS+=-MD -MP 
-CFLAGS+=-fno-show-column
-CFLAGS+=-fno-diagnostics-show-option
-CFLAGS+=-fdiagnostics-fixit-info
-
--include $(DEPS)
-
-START_TIMER:
-ifeq (${QUIET}, 1)
-	@tput bold
-	@echo "Silencing build commands (QUIET=1)"
-	@tput sgr0
-endif
-	@./scripts/start_timer
-
-
-LDFLAGS	:= 
-CFLAGS	+=$(shell pkg-config sdl3 --cflags)
 LDLIBS	:=$(shell pkg-config sdl3 --libs)
-ALLFLAGS:=
 
-
-CFLAGS	+=$(ALLFLAGS)
-LDFLAGS+=$(ALLFLAGS)
-
-
-# COMPILE 
-$(OBJ_DIR)/%$(OBJ_EXT) : $(SRC_DIR)/%$(SRC_EXT) START_TIMER
-ifneq (${QUIET}, 1)
+$(OBJ_DIR)/%$(OBJ_EXT) : $(SRC_DIR)/%$(SRC_EXT) 
+ifeq (${QUIET}, 0)
 	@$(ECHO_COMP_BANNER)
 	@echo
 	@printf '  %s\n' $(CC)
@@ -93,7 +32,7 @@ endif
 
 # LINK 
 $(EXE): $(EXE_DIR) $(OBJ_DIR) $(OBJS)
-ifneq (${QUIET}, 1)
+ifeq (${QUIET}, 0)
 	@$(ECHO_LINK_BANNER)
 	@echo
 	@printf '  %s\n' $(CC)
@@ -108,6 +47,7 @@ ifneq (${QUIET}, 1)
 endif
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(EXE) $(LDLIBS)
 
+-include $(DEPS)
 # executing binary
 run: $(EXE)
 	@tput bold
@@ -117,7 +57,7 @@ run: $(EXE)
 	@tput sgr0 
 	@$(ECHO_EXE_BANNER)
 	./$(EXE) $(ARGS)
-	@printf "btw, make was run with args:%s" $(MAKEFLAGS) 
+	clang --version
 
 	
 #NOTE: AVOID PUTTING TARGETS IN CLEAN COMMAND! BE VERY SPECIFIC SO YOU DONT NUKE YOUR SOURCE FILES ON ACCIDENT
@@ -188,7 +128,6 @@ HELP:
 	@$(FMT_ALT2)	printf "CFLAGS  = $(CFLAGS)\n"
 	@$(FMT_ALT1)	printf "LDFLAGS  = $(LDFLAGS)\n"
 	@$(FMT_ALT2)	printf "LDLIBS   = $(LDLIBS)\n"
-	@$(FMT_ALT1)	printf "ALLFLAGS = $(ALLFLAGS)\n"
 
 
 
