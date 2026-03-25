@@ -1,4 +1,3 @@
-.PHONY: all clean run debug help h ? docs
 
 # my personal makefile, to do the following:
 # 1. Compile all $(SRC_EXT) files with selected compiler, into separate object files, in $(BUILD_DIR)
@@ -6,20 +5,29 @@
 # 3. include any libs through ldlibs, prefer using $(shell pkg-config <name>) pattern
 # 4. Offer options to debug segfaults, using adsan, usan, etc
 # Do all of the above, but also make it pretty with fancy tput headers lol
-all: run
 
+# enabling this gives like 50% better build times rn lol
+QUIET:=1
+NCPU:=1
 OS:= $(shell uname -s)
-ifeq ($(OS), Darwin)
-	echo "macos"
-else ifeq ($(OS), Linux)
-	echo "linux"
+ifeq ($(OS),Darwin)
+	NCPU:=$(shell sysctl -n hw.ncpu)
+else ifeq ($(OS),Linux)
+	NCPU:=$(shell nproc)
+else 
 endif
 
-MAKEFLAGS+= -j8
+.PHONY: all clean run debug help h ? docs 
 
-$(shell uname -s) = "Darwin" ]; then
-	echo "macos"
-fi
+all: run
+
+
+
+
+
+
+MAKEFLAGS:=-j$(NCPU)
+
 EXE_DIR	:=bin
 EXE_NAME :=test
 EXE :=$(EXE_DIR)/$(EXE_NAME)
@@ -42,22 +50,28 @@ DEPS:= $(patsubst $(OBJ_DIR)/%.o,$(OBJ_DIR)/%.d, $(OBJS))
 
 CFLAGS:=-std=c23 
 
-CFLAGS+=-MD -MP
-CFLAGS+=-Wall 
-CFLAGS+=-Wimplicit-fallthrough 
-CFLAGS+=-Werror 
-CFLAGS+=-Wno-unused 
+# dependency file generator 
+CFLAGS+=-Wall -Wimplicit-fallthrough -Werror -Wno-unused 
 CFLAGS+=-Iinclude
-CFLAGS+=$(shell pkg-config sdl3 --cflags)
+CFLAGS+=-MD -MP 
 CFLAGS+=-fno-show-column
 CFLAGS+=-fno-diagnostics-show-option
 CFLAGS+=-fdiagnostics-fixit-info
 
 -include $(DEPS)
 
+START_TIMER:
+ifeq (${QUIET}, 1)
+	@tput bold
+	@echo "Silencing build commands (QUIET=1)"
+	@tput sgr0
+endif
+	@./scripts/start_timer
+
 
 LDFLAGS	:= 
-LDLIBS	:= $(shell pkg-config sdl3 --libs)
+CFLAGS	+=$(shell pkg-config sdl3 --cflags)
+LDLIBS	:=$(shell pkg-config sdl3 --libs)
 ALLFLAGS:=
 
 
@@ -66,17 +80,20 @@ LDFLAGS+=$(ALLFLAGS)
 
 
 # COMPILE 
-$(OBJ_DIR)/%$(OBJ_EXT) : $(SRC_DIR)/%$(SRC_EXT)
+$(OBJ_DIR)/%$(OBJ_EXT) : $(SRC_DIR)/%$(SRC_EXT) START_TIMER
+ifneq (${QUIET}, 1)
 	@$(ECHO_COMP_BANNER)
 	@echo
 	@printf '  %s\n' $(CC)
 	@printf '    %s\n' $(CFLAGS)
 	@printf '    %s\n'  $@
 	@printf '\n' 
-	$(CC) $(CFLAGS) -c $< -o $@ 
+endif
+	@$(CC) $(CFLAGS) -c $< -o $@ 
 
 # LINK 
 $(EXE): $(EXE_DIR) $(OBJ_DIR) $(OBJS)
+ifneq (${QUIET}, 1)
 	@$(ECHO_LINK_BANNER)
 	@echo
 	@printf '  %s\n' $(CC)
@@ -88,10 +105,16 @@ $(EXE): $(EXE_DIR) $(OBJ_DIR) $(OBJS)
 	@printf '\n' 
 	@printf '    %s\n' $(LDLIBS)
 	@printf '\n' 
+endif
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(EXE) $(LDLIBS)
 
 # executing binary
 run: $(EXE)
+	@tput bold
+	@printf "Build finished in "
+	@./scripts/readtimer
+	@printf " w/ $(NCPU) cpus...\n"
+	@tput sgr0 
 	@$(ECHO_EXE_BANNER)
 	./$(EXE) $(ARGS)
 	@printf "btw, make was run with args:%s" $(MAKEFLAGS) 
@@ -147,7 +170,6 @@ $(OBJ_DIR)/game:
 	@mkdir -p $@
 
 help h ? docs: HELP
-.PHONY: HELP
 HELP:
 	
 	@$(FMT_REV)
