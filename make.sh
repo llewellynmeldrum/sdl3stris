@@ -19,7 +19,7 @@ if [[ $1 == '-q' ]]; then
     QUIET=1
 fi
 
-export CFLAGS = " -std=c23 "
+export CFLAGS=" -std=c23 "
 CFLAGS+=" -Wall -Wimplicit-fallthrough -Werror -Wno-unused "
 CFLAGS+=" -Iinclude"
 CFLAGS+=" -MMD -MP "
